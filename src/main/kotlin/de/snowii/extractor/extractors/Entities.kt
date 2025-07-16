@@ -7,7 +7,6 @@ import com.mojang.serialization.JsonOps
 import de.snowii.extractor.Extractor
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.InventoryOwner
-import net.minecraft.entity.SpawnReason
 import net.minecraft.entity.ai.brain.Activity
 import net.minecraft.entity.ai.brain.Brain
 import net.minecraft.entity.ai.brain.MemoryModuleType
@@ -17,6 +16,9 @@ import net.minecraft.entity.ai.brain.task.Task
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityType
+import net.minecraft.entity.SpawnLocationTypes
+import net.minecraft.entity.SpawnReason
+import net.minecraft.entity.SpawnRestriction
 import net.minecraft.loot.LootTable
 import net.minecraft.registry.Registries
 import net.minecraft.registry.RegistryKey
@@ -244,6 +246,33 @@ class Entities : Extractor.Extractor {
                     ).getOrThrow()
                 )
             }
+            val spawnRestriction = JsonObject()
+            val location = SpawnRestriction.getLocation(entityType)
+            val locationName = when (location) {
+                SpawnLocationTypes::IN_LAVA.get() -> {
+                    "IN_LAVA"
+                }
+
+                SpawnLocationTypes::IN_WATER.get() -> {
+                    "IN_WATER"
+                }
+
+                SpawnLocationTypes::ON_GROUND.get() -> {
+                    "ON_GROUND"
+                }
+
+                SpawnLocationTypes::UNRESTRICTED.get() -> {
+                    "UNRESTRICTED"
+                }
+
+                else -> {
+                    ""
+                }
+            }
+
+            spawnRestriction.addProperty("location", locationName)
+            spawnRestriction.addProperty("heightmap", SpawnRestriction.getHeightmapType(entityType).toString())
+            entityJson.add("spawn_restriction", spawnRestriction)
 
             entitiesJson.add(
                 Registries.ENTITY_TYPE.getId(entityType).path, entityJson
