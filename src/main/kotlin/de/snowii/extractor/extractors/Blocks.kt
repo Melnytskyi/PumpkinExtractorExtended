@@ -80,6 +80,8 @@ class Blocks : Extractor.Extractor {
             blockJson.addProperty("hardness", block.hardness)
             blockJson.addProperty("blast_resistance", block.blastResistance)
             blockJson.addProperty("item_id", Registries.ITEM.getRawId(block.asItem()))
+            blockJson.addProperty("map_color_rgb", block.defaultMapColor.color)
+
 
             // Add flammable data if this block is flammable
             flammableData[block]?.let { (spreadChance, burnChance) ->
@@ -148,9 +150,23 @@ class Blocks : Extractor.Extractor {
                 if (state.isOpaque) {
                     stateJson.addProperty("opacity", state.opacity)
                 }
- 
+                if(state.hasComparatorOutput())
+                    stateJson.addProperty("has_comparator_output", true)
+
+                if(state.hasRandomTicks())
+                    stateJson.addProperty("has_random_ticks", true)
+
                 if (block.defaultState == state) {
                     blockJson.addProperty("default_state_id", Block.getRawIdFromState(state))
+                }
+
+                block.getStateWithProperties(state).let { stateWithProperties ->
+                    val propsJson = JsonObject()
+                    for (prop in block.stateManager.properties) {
+                        val value = stateWithProperties.get(prop)
+                        propsJson.addProperty(prop.name, value.toString())
+                    }
+                    stateJson.add("properties", propsJson)
                 }
 
                 val collisionShapeIdxsJson = JsonArray()

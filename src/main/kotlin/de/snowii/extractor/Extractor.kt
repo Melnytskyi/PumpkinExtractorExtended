@@ -65,6 +65,7 @@ class Extractor : ModInitializer {
             DamageTypes(),
             Fluids(),
             Properties(),
+            Potion(),
             ComposterIncreaseChance(),
             FlowerPotTransformation(),
             Fuels(),
@@ -173,6 +174,7 @@ class Extractor : ModInitializer {
                 }
             }
             logger.info("Done, took ${timeInMillis}ms")
+            server.stop(false)
         })
     }
 
